@@ -9,12 +9,11 @@ from tkinter import *
 from tkinter import messagebox
 import random
 import pickle
+import datetime
 #-----------------------------------------------------------#
                         #CLASES
 #-----------------------------------------------------------#
-
 #Variables para la clase de configuracion
-
 lista_con_juegos_facil = [(
             (">", 0, 0), (">", 0, 2), (">", 0, 3),
             ("4", 1, 0), ("2", 1, 4),
@@ -1011,6 +1010,7 @@ class Juego:
         nombre_jugador = lista_con_variables_juego[4]
         self.nombre_jugador = nombre_jugador
 
+        nombre.config(state = "normal")
         nombre.insert(0, nombre_jugador)
 
         nombre.config(state= "disabled")
@@ -1087,6 +1087,7 @@ class Juego:
             self.boton_4.config(bg= "light blue")
             self.boton_5.config(bg= "green")
 
+
     #Metodo para poner la casilla con el problema en rojo y despues presionar tecla y continuar
     def indicar_restriccion(self, lista_posiciones):
         for i in lista_posiciones:
@@ -1098,6 +1099,7 @@ class Juego:
                 if fila == fila_boton and columna == columna_boton:
                     j[0].config(bg= "red")
         ventana_jugar.bind("<Return>", self.normalidad)
+
     #Metodo para volver los botones a color normal
     def normalidad(self, *args):
         for i in self.lista_posicion_boton:
@@ -1110,6 +1112,8 @@ class Juego:
         if len(lista_boton_numero_casilla) == 3:
             #Revisar si hay una restriccion en esa casilla
             restriccion_valida_en_misma_casilla = True
+            restriccion_valida_casilla_a_la_izquierda = True
+            restriccion_valida_casilla_arriba = True
             for i in configuracion_juego.lista_nivel:
                 restriccion = i[0]
                 fila = i[1]
@@ -1170,12 +1174,7 @@ class Juego:
                             restriccion_valida_en_misma_casilla = True
                             break
 
-            restriccion_valida_casilla_a_la_izquierda = True
-            for i in configuracion_juego.lista_nivel:
-                restriccion = i[0]
-                fila = i[1]
-                columna = i[2]
-                if fila == lista_boton_numero_casilla[1] and columna == (lista_boton_numero_casilla[2] - 1):
+                elif fila == lista_boton_numero_casilla[1] and columna == (lista_boton_numero_casilla[2] - 1):
                     if restriccion == ">":
                         elemento = self.lista_botones_casilla[fila][columna][0]
                         if elemento != 0:
@@ -1204,13 +1203,7 @@ class Juego:
                             restriccion_valida_casilla_a_la_izquierda = True
                             break
 
-
-            restriccion_valida_casilla_arriba = True
-            for i in configuracion_juego.lista_nivel:
-                restriccion = i[0]
-                fila = i[1]
-                columna = i[2]
-                if fila == (lista_boton_numero_casilla[1] - 1) and columna == (lista_boton_numero_casilla[2]):
+                elif fila == (lista_boton_numero_casilla[1] - 1) and columna == (lista_boton_numero_casilla[2]):
                     if restriccion == "v":
                         elemento = self.lista_botones_casilla[fila][columna][0]
                         if elemento != 0:
@@ -1247,16 +1240,12 @@ class Juego:
                         messagebox.showwarning(title= "", message= "JUGADA NO ES VÁLIDA PORQUE EL ELEMENTO YA ESTÁ EN LA FILA ")
                         self.indicar_restriccion([(lista_boton_numero_casilla[1], lista_boton_numero_casilla[2]), (lista_boton_numero_casilla[1], cont)])
                         restriccion_no_se_repite = False
-                        break
-                    cont += 1
-                cont= 0
-                while cont < 5:
+
                     elemento = self.lista_botones_casilla[cont][lista_boton_numero_casilla[2]][0]
                     if elemento == lista_boton_numero_casilla[0]:
                         messagebox.showwarning(title= "", message= "JUGADA NO ES VÁLIDA PORQUE EL ELEMENTO YA ESTÁ EN LA COLUMNA ")
                         self.indicar_restriccion([(lista_boton_numero_casilla[1], lista_boton_numero_casilla[2]), (cont, lista_boton_numero_casilla[2])])
                         restriccion_no_se_repite = False
-                        break
                     cont += 1
 
                 if restriccion_no_se_repite == True:
@@ -1289,65 +1278,45 @@ class Juego:
             if tablero_completo:
                 for i in self.lista_posicion_boton:
                     i[0]["state"] = "disabled"
+                #TOP 10#################################################################
+                #Proceso para ver si hay que registarlo en top 10
+                #Obtener tiempo que duro
+                formato = "%H:%M:%S"
+                hora = datetime.datetime.strptime((str(hh) + ":" + str(mm) + ":" + str(ss)), formato)
+                archivo_top10 = open("futoshiki2021top10.dat", "rb")
+                listas = pickle.load(archivo_top10)
+                lista_facil = listas[0]
+                lista_intermedio = listas[1]
+                lista_dificil = listas[2]
+                nombre = self.nombre_jugador
+                if configuracion_juego.nivel == "Facil":
+                    lista = listas[0]
+                elif configuracion_juego.nivel == "Intermedio":
+                    lista = listas[1]
+                else:
+                    lista = listas[2]
+                tupla = nombre, hora
+                for n,i in enumerate(lista):
+                    try:
+                        tiempo = i[0]
+                        tiempo = datetime.datetime.strptime(tiempo, formato)
+                        if hora > tiempo:
+                            lista.insert(n, tupla)
+                            hora = tiempo
+                            tupla = i
+                        else:
+                            pass
+                    except:
+                        lista.append(hora)
+                archivo = open("futoshiki2021top10.dat", "wb")
+                lista_nueva = [lista_facil, lista_intermedio, lista_dificil]
+                pickle.dump(lista_nueva, archivo)
+                archivo.close()
+                ##################################################################################
+
                 messagebox.showinfo(title= "", message= "¡EXCELENTE! JUEGO TERMINADO CON ÉXITO.")
                 alerta = messagebox.askyesno(title= "", message= "¿DESEA INICIAR UN NUEVO JUEGO?")
                 if alerta:
-                    self.lista_botones_casilla = [[(0, 0), (0, 1), (0, 2), (0, 3), (0, 4)],
-                                             [(0, 0), (0, 1), (0, 2), (0, 3), (0, 4)],
-                                             [(0, 0), (0, 1), (0, 2), (0, 3), (0, 4)],
-                                             [(0, 0), (0, 1), (0, 2), (0, 3), (0, 4)],
-                                             [(0, 0), (0, 1), (0, 2), (0, 3), (0, 4)]]
-                    for i in self.lista_posicion_boton:
-                        i[0].config(text="")
-
-                    if configuracion_juego.nivel == "Facil":
-                        numero = random.randint(0, (len(lista_con_juegos_facil) - 1))
-                        lista_nivel = lista_con_juegos_facil[numero]
-                        configuracion_juego.lista_nivel = lista_nivel
-                    elif configuracion_juego.nivel == "Intermedio":
-                        numero = random.randint(0, (len(lista_con_juegos_intermedios) - 1))
-                        lista_nivel = lista_con_juegos_intermedios[numero]
-                        configuracion_juego.lista_nivel = lista_nivel
-
-                    for i in configuracion_juego.lista_nivel:
-                        fila = i[1]
-                        columna = i[2]
-                        restriccion = i[0]
-                        for j in self.lista_posicion_boton:
-                            fila_boton = j[1]
-                            columna_boton = j[2]
-                            boton = j[0]
-                            if fila == fila_boton and columna == columna_boton:
-                                try:
-                                    restriccion = int(restriccion)
-                                except:
-                                    pass
-                                if isinstance(restriccion, int):
-                                    boton.config(text=restriccion)
-                                    boton["state"] = "disabled"
-                                    self.lista_botones_casilla[fila][columna] = (restriccion, columna)
-
-                    for i in lista_boton_donde_va_restriccion:
-                        for e in i:
-                            try:
-                                e.config(text="")
-                            except:
-                                pass
-
-                    for i in configuracion_juego.lista_nivel:
-                        fila = i[1]
-                        columna = i[2]
-                        restriccion = i[0]
-                        for j in lista_boton_donde_va_restriccion:
-                            fila_comparar = j[0]
-                            columna_comparar = j[1]
-                            if fila == fila_comparar and columna == columna_comparar:
-                                if restriccion == "<" or restriccion == ">":
-                                    j[2]["text"] = restriccion
-                                elif len(j) == 3 and (restriccion == "v" or restriccion == "˄"):
-                                    j[2]["text"] = restriccion
-                                elif len(j) == 4 and (restriccion == "v" or restriccion == "˄"):
-                                    j[3]["text"] = restriccion
                     self.terminar_juego_funcion(0)
                 else:
                     if configuracion_juego.reloj == "Si":
