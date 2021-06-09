@@ -619,7 +619,7 @@ class Juego:
             self.borrar_jugada = Button(ventana_jugar, text= "BORRAR\n JUGADA", bg= "turquoise", fg= "black", font= ("Times New Roman", "12"), state= "disabled", command= self.borrar_jugada_funcion)
             self.borrar_jugada.place(x= 140, y= 440, width= 100, height= 50)
 
-            self.terminar_juego = Button(ventana_jugar, text= "TERMINAR\n JUEGO", bg= "#3ed171", fg= "black", font= ("Times New Roman", "12"), state= "disabled", command= self.terminar_juego_funcion)
+            self.terminar_juego = Button(ventana_jugar, text= "TERMINAR\n JUEGO", bg= "#3ed171", fg= "black", font= ("Times New Roman", "12"), state= "disabled", command= lambda: self.terminar_juego_funcion(1))
             self.terminar_juego.place(x= 260, y= 440, width= 100, height= 50)
 
             self.borrar_juego = Button(ventana_jugar, text= "BORRAR\n JUEGO", bg= "#6d9eeb", fg= "black", font= ("Times New Roman", "12"), state= "disabled", command= self.borrar_juego_funcion)
@@ -1348,21 +1348,7 @@ class Juego:
                                     j[2]["text"] = restriccion
                                 elif len(j) == 4 and (restriccion == "v" or restriccion == "˄"):
                                     j[3]["text"] = restriccion
-
-                    self.boton_1.config(state="disabled", bg="light blue")
-                    self.boton_2.config(state="disabled", bg="light blue")
-                    self.boton_3.config(state="disabled", bg="light blue")
-                    self.boton_4.config(state="disabled", bg="light blue")
-                    self.boton_5.config(state="disabled", bg="light blue")
-                    self.borrar_jugada["state"] = "disabled"
-                    self.terminar_juego["state"] = "disabled"
-                    nombre.delete(0, END)
-                    self.nombre_jugador = ""
-
-                    if configuracion_juego.reloj == "Si":
-                        self.reloj("stop")
-                    elif configuracion_juego.reloj == "Timer":
-                        self.timer("stop", 0, 0, 0)
+                    self.terminar_juego_funcion(0)
                 else:
                     if configuracion_juego.reloj == "Si":
                         self.reloj("pause")
