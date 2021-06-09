@@ -7,9 +7,7 @@
 #----------------------------------------------------------#
 from tkinter import *
 from tkinter import messagebox
-import time
 import random
-import datetime
 import pickle
 #-----------------------------------------------------------#
                         #CLASES
@@ -28,6 +26,9 @@ lista_con_juegos_facil = [(
 lista_con_juegos_intermedios = [(("4", 0, 4), ("3", 1, 0), ("v", 1, 0), ("1", 1,1),
                                  ("˄", 1,1), ("5", 1, 3), ("5", 2, 1),("˄", 2, 2),
                                  (">", 2, 3), ("5", 3, 2))]
+
+lista_con_juegos_dificiles = [(("4",0,1),(">",0,1),("5",0,3),("4",1,0),("2",1,4),
+                               ("v",1,4),("3",3,0),("v",3,1),("4",3,4),("3",4,1),("1",4,3))]
 #Clase para la configuracion
 class Configuracion:
     def ventana(self, ventana_principal):
@@ -108,8 +109,7 @@ class Configuracion:
         self.guardar.place(x=10, y=400)
 
         Label(ventana_configuracion, text= "LA CONFIGURACION PREDETERMINADA\n TIENE UN CIRCULO ROJO A SU DERECHA", font= ("Times New Roman", "14"), fg = "dark red").place(x= 100, y= 400)
-        Label(ventana_configuracion, text= "* EN CASO DE ENTRAR A LA\n CONFIGURACION CON UNA\n CONFIGURACION YA GUARDADA\n Y SE VUELVE A GUARDAR\n SIN MARCAR NADA SE GUARDARA\n LA CONFIGURACION PREDETERMINDADA",\
-              font= ("Times New Roman", "11"), fg= "red").place(x=188, y= 50)
+        Label(ventana_configuracion, text= "* EN CASO DE ENTRAR A LA\n CONFIGURACION CON UNA\n CONFIGURACION YA GUARDADA\n Y SE VUELVE A GUARDAR\n SIN MARCAR NADA SE GUARDARA\n LA CONFIGURACION PREDETERMINDADA", font= ("Times New Roman", "11"), fg= "red").place(x=188, y= 50)
 
 
         ventana_configuracion.mainloop()
@@ -137,6 +137,8 @@ class Configuracion:
         self.boton_facil.config(bg="light gray")
         self.boton_intermedio.config(bg="light gray")
         self.boton_dificil.config(bg="light green")
+        numero = random.randint(0, (len(lista_con_juegos_dificiles) - 1))
+        lista_nivel = lista_con_juegos_dificiles[numero]
         nivel = "Dificil"
 
 
@@ -659,12 +661,24 @@ class Juego:
 
     #Metodo para iniciar el juegp
     def iniciar_juego_funcion(self):
+        global hh, mm, ss
         if self.cargo:
             pass
         else:
             self.pila_jugadas = []
+
         if nombre.get() != "":
             nombre.config(state = "disabled")
+            if configuracion_juego.reloj == "Si":
+                self.reloj("start")
+            elif configuracion_juego.reloj == "Timer":
+                if self.cargo:
+                    self.timer("start", hh, mm, ss)
+                else:
+                    hh = configuracion_juego.lista_timer[0]
+                    mm = configuracion_juego.lista_timer[1]
+                    ss = configuracion_juego.lista_timer[2]
+                    self.timer("start", hh, mm, ss)
             self.cargo = False
             self.nombre_jugador = nombre.get()
             self.boton_1["state"] = "normal"
@@ -677,49 +691,58 @@ class Juego:
             self.borrar_juego["state"] = "normal"
             self.guardar["state"] = "normal"
             self.cargar["state"] = "disabled"
+            self.iniciar_juego["state"] = "disabled"
             for i in self.lista_posicion_boton:
                 if i[0]["text"] == "":
                     i[0]["state"] = "normal"
-            if configuracion_juego.reloj == "Si":
-                self.reloj("start")
-            elif configuracion_juego.reloj == "Timer":
-                self.timer("start")
         else:
             messagebox.showwarning(title= "", message= "DEBE INTRODUCIR UN NOMBRE PRIMERO")
 
     #Metodos para el manejo del tiempo
     #Metodo para el timer
     #FALTA INDICAR QUE HACER CUANDO TERMINE EL TIMER
-    def timer(self, start_stop):
-        hh = configuracion_juego.lista_timer[0]
-        mm = configuracion_juego.lista_timer[1]
-        ss = configuracion_juego.lista_timer[2]
-        tiempo = int(hh) * 3600 + int(mm) * 60 + int(ss)
-        while tiempo > -1:
-            minute, second = (tiempo // 60, tiempo % 60)
-            hour = 0
-            if minute > 60:
-                hour, minute = (minute // 60, minute % 60)
-            ss = second
-            mm = minute
-            hh = hour
+    def timer(self, start_stop, h, m, s):
+        global hh, mm, ss, contar_timer
+        if start_stop == "start":
+            tiempo = int(h) * 3600 + int(m) * 60 + int(s)
+            tiempo -= 1
+            minuto = tiempo // 60
+            segundo = tiempo % 60
+            hora = 0
+            if minuto > 60:
+                hour, minuto = (minuto // 60, minuto % 60)
+            ss = segundo
+            mm = minuto
+            hh = hora
             self.horas_reloj.config(text= hh)
             self.minutos_reloj.config(text= mm)
             self.segundos_reloj.config(text= ss)
-            time.sleep(1)
+            contar_timer = self.horas_reloj.after(1000, lambda: self.timer("start", hh, mm, ss))
             ventana_jugar.update()
+
             if tiempo == 0:
-                pass
-            if start_stop == "stop":
-                ss = 0
-                mm = 0
-                hh = 0
-                self.horas_reloj.config(text=hh)
-                self.minutos_reloj.config(text=mm)
-                self.segundos_reloj.config(text=ss)
-                self.timer("stop")
-                break
-            tiempo -= 1
+                self.horas_reloj.after_cancel(contar_timer)
+                alerta = messagebox.askyesno(title= "", message= "TIEMPO EXPIRADO. ¿DESEA CONTINUAR EL MISMO JUEGO (SI O NO)?")
+                if alerta:
+                    hh = configuracion_juego.lista_timer[0]
+                    mm = configuracion_juego.lista_timer[1]
+                    ss = configuracion_juego.lista_timer[2]
+                    self.reloj("start")
+                else:
+                    self.terminar_juego_funcion(0)
+        elif start_stop == "stop":
+            ss = 0
+            mm = 0
+            hh = 0
+            self.horas_reloj.after_cancel(contar_timer)
+            self.horas_reloj.config(text=hh)
+            self.minutos_reloj.config(text=mm)
+            self.segundos_reloj.config(text=ss)
+        else:
+            self.horas_reloj.after_cancel(contar_timer)
+            self.horas_reloj.config(text=hh)
+            self.minutos_reloj.config(text=mm)
+            self.segundos_reloj.config(text=ss)
 
 
     #Metodo para el reloj
@@ -743,6 +766,11 @@ class Juego:
             hh = 0
             mm = 0
             ss = 0
+            self.horas_reloj.after_cancel(contar_reloj)
+            self.horas_reloj.config(text=hh)
+            self.minutos_reloj.config(text=mm)
+            self.segundos_reloj.config(text=ss)
+        else:
             self.horas_reloj.after_cancel(contar_reloj)
             self.horas_reloj.config(text=hh)
             self.minutos_reloj.config(text=mm)
@@ -778,9 +806,12 @@ class Juego:
             messagebox.showinfo(title= "", message= "NO HAY MÁS JUGADAS PARA BORRAR")
 
     #Metodo para terminar el juego
-    def terminar_juego_funcion(self):
+    def terminar_juego_funcion(self, mostrar_alerta):
         global lista_boton_numero_casilla
-        alerta = messagebox.askyesno(title= "", message= "¿ESTÁ SEGURO DE TERMINAR EL JUEGO (SI o NO)?")
+        if mostrar_alerta == 1:
+            alerta = messagebox.askyesno(title= "", message= "¿ESTÁ SEGURO DE TERMINAR EL JUEGO (SI o NO)?")
+        else:
+            alerta = True
         if alerta == True:
             self.lista_botones_casilla = [[(0, 0), (0, 1), (0, 2), (0, 3), (0, 4)], [(0, 0), (0, 1), (0, 2), (0, 3), (0, 4)],
                                      [(0, 0), (0, 1), (0, 2), (0, 3), (0, 4)], [(0, 0), (0, 1), (0, 2), (0, 3), (0, 4)],
@@ -798,7 +829,9 @@ class Juego:
                 lista_nivel = lista_con_juegos_intermedios[numero]
                 configuracion_juego.lista_nivel = lista_nivel
             else:
-                pass
+                numero = random.randint(0, (len(lista_con_juegos_dificiles) - 1))
+                lista_nivel = lista_con_juegos_dificiles[numero]
+                configuracion_juego.lista_nivel = lista_nivel
 
             for i in configuracion_juego.lista_nivel:
                 fila = i[1]
@@ -848,13 +881,25 @@ class Juego:
             self.borrar_jugada["state"] = "disabled"
             self.terminar_juego["state"] = "disabled"
             self.borrar_juego["state"] = "disabled"
+            self.iniciar_juego["state"] = "normal"
+            self.guardar["state"] = "disabled"
+            self.cargar["state"] = "normal"
+            nombre.config(state = "normal")
             nombre.delete(0, END)
             self.nombre_jugador = ""
+            try:
+                self.horas_reloj.after_cancel(contar_reloj)
+            except:
+                pass
+            try:
+                self.horas_reloj.after_cancel(contar_timer)
+            except:
+                pass
 
             if configuracion_juego.reloj == "Si":
                 self.reloj("stop")
             elif configuracion_juego.reloj == "Timer":
-                self.timer("stop")
+                self.timer("stop", 0, 0, 0)
 
             lista_boton_numero_casilla = []
 
@@ -878,10 +923,21 @@ class Juego:
             self.borrar_jugada["state"] = "disabled"
             self.terminar_juego["state"] = "disabled"
             self.borrar_juego["state"] = "disabled"
+            self.iniciar_juego["state"] = "normal"
+            self.guardar["state"] = "disabled"
+            self.cargar["state"] = "normal"
+            try:
+                self.horas_reloj.after_cancel(contar_reloj)
+            except:
+                pass
+            try:
+                self.horas_reloj.after_cancel(contar_timer)
+            except:
+                pass
             if configuracion_juego.reloj == "Si":
                 self.reloj("stop")
             elif configuracion_juego.reloj == "Timer":
-                self.timer("stop")
+                self.timer("stop", 0, 0, 0)
 
             lista_boton_numero_casilla = []
 
@@ -929,6 +985,7 @@ class Juego:
         pickle.dump(lista_con_todo, archivo)
         archivo.close()
 
+    #Metodo para cargar partida
     def cargar_partida_funcion(self):
         global hh, mm, ss, lista_boton_numero_casilla
         archivo = open("futoshiki2021juegoactual.dat", "rb")
@@ -990,6 +1047,8 @@ class Juego:
         configuracion_juego.lista_timer = lista_timer
 
         self.cargo = True
+
+        archivo.close()
 
 
     #Metodo para cada boton con el digito
@@ -1303,8 +1362,12 @@ class Juego:
                     if configuracion_juego.reloj == "Si":
                         self.reloj("stop")
                     elif configuracion_juego.reloj == "Timer":
-                        self.timer("stop")
-
+                        self.timer("stop", 0, 0, 0)
+                else:
+                    if configuracion_juego.reloj == "Si":
+                        self.reloj("pause")
+                    elif configuracion_juego.reloj == "Timer":
+                        self.timer("pause", 0, 0, 0)
 
         else:
             messagebox.showwarning(title= "", message= "FALTA QUE SELECCIONE UN DÍGITO.")
@@ -1318,6 +1381,7 @@ class Juego:
 
 
 configuracion_juego = Configuracion()
+juego_obj = Juego()
 
 def menu():
     global ventana_principal
@@ -1340,8 +1404,6 @@ def menu():
 
 def configuracion():
     configuracion_juego.ventana(ventana_principal)
-
-juego_obj = Juego()
 
 def juego():
     juego_obj.widgets(ventana_principal, configuracion_juego)
