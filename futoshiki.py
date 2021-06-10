@@ -9,7 +9,6 @@ from tkinter import *
 from tkinter import messagebox
 import random
 import pickle
-import datetime
 #-----------------------------------------------------------#
                         #CLASES
 #-----------------------------------------------------------#
@@ -30,6 +29,7 @@ lista_con_juegos_dificiles = [(("4",0,1),(">",0,1),("5",0,3),("4",1,0),("2",1,4)
                                ("v",1,4),("3",3,0),("v",3,1),("4",3,4),("3",4,1),("1",4,3))]
 #Clase para la configuracion
 class Configuracion:
+
     def ventana(self, ventana_principal):
         global ventana_configuracion
         global reloj, lista_timer, nivel, lista_nivel, posicion
@@ -118,8 +118,7 @@ class Configuracion:
         self.boton_facil.config(bg="light green")
         self.boton_intermedio.config(bg="light gray")
         self.boton_dificil.config(bg="light gray")
-        numero = random.randint(0, (len(lista_con_juegos_facil) - 1))
-        lista_nivel = lista_con_juegos_facil[numero]
+        lista_nivel = lista_con_juegos_facil[random.randint(0, (len(lista_con_juegos_facil) - 1))]
         nivel = "Facil"
 
     def intermedio(self):
@@ -127,8 +126,7 @@ class Configuracion:
         self.boton_facil.config(bg="light gray")
         self.boton_intermedio.config(bg="light green")
         self.boton_dificil.config(bg="light gray")
-        numero = random.randint(0, (len(lista_con_juegos_intermedios) - 1))
-        lista_nivel = lista_con_juegos_intermedios[numero]
+        lista_nivel = lista_con_juegos_intermedios[random.randint(0, (len(lista_con_juegos_intermedios) - 1))]
         nivel = "Intermedio"
 
     def dificil(self):
@@ -136,8 +134,7 @@ class Configuracion:
         self.boton_facil.config(bg="light gray")
         self.boton_intermedio.config(bg="light gray")
         self.boton_dificil.config(bg="light green")
-        numero = random.randint(0, (len(lista_con_juegos_dificiles) - 1))
-        lista_nivel = lista_con_juegos_dificiles[numero]
+        lista_nivel = lista_con_juegos_dificiles[random.randint(0, (len(lista_con_juegos_dificiles) - 1))]
         nivel = "Dificil"
 
 
@@ -199,7 +196,8 @@ class Configuracion:
             else:
                 lista_timer[0] = horas_variable
         except:
-            pass
+            messagebox.showwarning(title= "", message= "ERROR DEBE SER UN NUMERO ENTERO")
+            self.Horas.delete(0, END)
 
     def minutos_funcion(self, *args):
         global lista_timer
@@ -212,7 +210,8 @@ class Configuracion:
                 messagebox.showwarning(title="", message="ERROR LOS MINUTOS DEBEN SER UN ENTERO ENTRE 0 Y 59")
                 self.Minutos.delete(0, END)
         except:
-            pass
+            messagebox.showwarning(title="", message="ERROR DEBE SER UN NUMERO ENTERO")
+            self.Horas.delete(0, END)
 
     def segundos_funcion(self, *args):
         global lista_timer
@@ -225,7 +224,8 @@ class Configuracion:
                 messagebox.showwarning(title="", message="ERROR LOS SEGUNDOS DEBEN SER UN ENTERO ENTRE 0 Y 59")
                 self.Segundos.delete(0, END)
         except:
-            pass
+            messagebox.showwarning(title="", message="ERROR DEBE SER UN NUMERO ENTERO")
+            self.Horas.delete(0, END)
 
     def derecha(self):
         global posicion
@@ -260,13 +260,13 @@ class Configuracion:
 
 lista_boton_numero_casilla = []
 
-hh = 0
-mm = 0
-ss = 0
-
 #Clase del juego
 
 class Juego:
+
+    hh = 0
+    mm = 0
+    ss = 0
 
     #Metodo para crear la ventana y sus respectivos widgets
     def widgets(self, ventana, configuracion_juego):
@@ -553,35 +553,37 @@ class Juego:
 
             #Dependiendo de como se haya configurado el panel con los numeros se coloca a la derecha o a la izquierda
             #Cuando se crean los botones permanecen desactivados hasta que se inicie el juego
+            v = IntVar()
+
             if configuracion_juego.posicion == "Derecha":
-                self.boton_1 = Button(ventana_jugar, text= "1", bg= "light blue", state= "disabled", command= lambda: self.boton_funcion(1))
+                self.boton_1 = Radiobutton(ventana_jugar, text= "1", bg= "light blue", state= "disabled", variable= v, value= 1, indicator = 0, activebackground= "blue", selectcolor= "green", command= lambda: [self.boton_funcion(v.get())])
                 self.boton_1.place(x= 540, y= 140, width= 40, height= 40)
 
-                self.boton_2 = Button(ventana_jugar, text= "2", bg= "light blue", state= "disabled", command= lambda: self.boton_funcion(2))
+                self.boton_2 = Radiobutton(ventana_jugar, text= "2", bg= "light blue", state= "disabled", variable= v, value= 2, indicator = 0, activebackground= "blue", selectcolor= "green",command= lambda: self.boton_funcion(v.get()))
                 self.boton_2.place(x=540, y=200, width= 40, height= 40)
 
-                self.boton_3 = Button(ventana_jugar, text= "3", bg= "light blue", state= "disabled", command= lambda: self.boton_funcion(3))
+                self.boton_3 = Radiobutton(ventana_jugar, text= "3", bg= "light blue", state= "disabled",variable= v, value= 3, indicator = 0, activebackground= "blue", selectcolor= "green", command= lambda: self.boton_funcion(v.get()))
                 self.boton_3.place(x=540, y=260, width= 40, height= 40)
 
-                self.boton_4 = Button(ventana_jugar, text= "4", bg= "light blue", state= "disabled", command= lambda: self.boton_funcion(4))
+                self.boton_4 = Radiobutton(ventana_jugar, text= "4", bg= "light blue", state= "disabled",variable= v, value= 4, indicator = 0, activebackground= "blue", selectcolor= "green", command= lambda: self.boton_funcion(v.get()))
                 self.boton_4.place(x=540, y=320, width= 40, height= 40)
 
-                self.boton_5 = Button(ventana_jugar, text= "5", bg= "light blue", state= "disabled", command= lambda: self.boton_funcion(5))
+                self.boton_5 = Radiobutton(ventana_jugar, text= "5", bg= "light blue", state= "disabled",variable= v, value= 5, indicator = 0, activebackground= "blue", selectcolor= "green", command= lambda: self.boton_funcion(v.get()))
                 self.boton_5.place(x=540, y=380, width= 40, height= 40)
             else:
-                self.boton_1 = Button(ventana_jugar, text= "1", bg= "light blue", state= "disabled", command= lambda: self.boton_funcion(1))
+                self.boton_1 = Radiobutton(ventana_jugar, text= "1", bg= "light blue", state= "disabled", variable= v, value= 1, indicator = 0, activebackground= "blue", selectcolor= "green", command= lambda: [self.boton_funcion(v.get())])
                 self.boton_1.place(x= 80, y= 140, width= 40, height= 40)
 
-                self.boton_2 = Button(ventana_jugar, text= "2", bg= "light blue", state= "disabled", command= lambda: self.boton_funcion(2))
+                self.boton_2 = Radiobutton(ventana_jugar, text= "2", bg= "light blue", state= "disabled", variable= v, value= 2, indicator = 0, activebackground= "blue", selectcolor= "green",command= lambda: self.boton_funcion(v.get()))
                 self.boton_2.place(x=80, y=200, width= 40, height= 40)
 
-                self.boton_3 = Button(ventana_jugar, text= "3", bg= "light blue", state= "disabled", command= lambda: self.boton_funcion(3))
+                self.boton_3 = Radiobutton(ventana_jugar, text= "3", bg= "light blue", state= "disabled",variable= v, value= 3, indicator = 0, activebackground= "blue", selectcolor= "green", command= lambda: self.boton_funcion(v.get()))
                 self.boton_3.place(x=80, y=260, width= 40, height= 40)
 
-                self.boton_4 = Button(ventana_jugar, text= "4", bg= "light blue", state= "disabled", command= lambda: self.boton_funcion(4))
+                self.boton_4 = Radiobutton(ventana_jugar, text= "4", bg= "light blue", state= "disabled",variable= v, value= 4, indicator = 0, activebackground= "blue", selectcolor= "green", command= lambda: self.boton_funcion(v.get()))
                 self.boton_4.place(x=80, y=320, width= 40, height= 40)
 
-                self.boton_5 = Button(ventana_jugar, text= "5", bg= "light blue", state= "disabled", command= lambda: self.boton_funcion(5))
+                self.boton_5 = Radiobutton(ventana_jugar, text= "5", bg= "light blue", state= "disabled",variable= v, value= 5, indicator = 0, activebackground= "blue", selectcolor= "green", command= lambda: self.boton_funcion(v.get()))
                 self.boton_5.place(x=80, y=380, width= 40, height= 40)
 
             #Se crea una lista con el boton de la casilla y su respectiva fila y columna
@@ -624,7 +626,7 @@ class Juego:
             self.borrar_juego = Button(ventana_jugar, text= "BORRAR\n JUEGO", bg= "#6d9eeb", fg= "black", font= ("Times New Roman", "12"), state= "disabled", command= self.borrar_juego_funcion)
             self.borrar_juego.place(x= 380, y= 440, width= 100, height= 50)
 
-            self.top_10 =Button(ventana_jugar, text= "TOP\n 10", bg= "yellow", fg= "black", font= ("Times New Roman", "12"))
+            self.top_10 =Button(ventana_jugar, text= "TOP\n 10", bg= "yellow", fg= "black", font= ("Times New Roman", "12"), command= self.top_10_funcion)
             self.top_10.place(x= 500, y= 440, width= 100, height= 50)
 
             self.guardar = Button(ventana_jugar, text= "GUARDAR JUEGO", font= ("Times New Roman", "10"), command= self.guardar_partida_funcion, state= "disabled")
@@ -660,7 +662,6 @@ class Juego:
 
     #Metodo para iniciar el juegp
     def iniciar_juego_funcion(self):
-        global hh, mm, ss
         if self.cargo:
             pass
         else:
@@ -672,12 +673,12 @@ class Juego:
                 self.reloj("start")
             elif configuracion_juego.reloj == "Timer":
                 if self.cargo:
-                    self.timer("start", hh, mm, ss)
+                    self.timer("start", self.hh, self.mm, self.ss)
                 else:
-                    hh = configuracion_juego.lista_timer[0]
-                    mm = configuracion_juego.lista_timer[1]
-                    ss = configuracion_juego.lista_timer[2]
-                    self.timer("start", hh, mm, ss)
+                    self.hh = configuracion_juego.lista_timer[0]
+                    self.mm = configuracion_juego.lista_timer[1]
+                    self.ss = configuracion_juego.lista_timer[2]
+                    self.timer("start", self.hh, self.mm, self.ss)
             self.cargo = False
             self.nombre_jugador = nombre.get()
             self.boton_1["state"] = "normal"
@@ -691,6 +692,7 @@ class Juego:
             self.guardar["state"] = "normal"
             self.cargar["state"] = "disabled"
             self.iniciar_juego["state"] = "disabled"
+
             for i in self.lista_posicion_boton:
                 if i[0]["text"] == "":
                     i[0]["state"] = "normal"
@@ -701,7 +703,7 @@ class Juego:
     #Metodo para el timer
     #FALTA INDICAR QUE HACER CUANDO TERMINE EL TIMER
     def timer(self, start_stop, h, m, s):
-        global hh, mm, ss, contar_timer
+        global contar_timer
         if start_stop == "start":
             tiempo = int(h) * 3600 + int(m) * 60 + int(s)
             tiempo -= 1
@@ -710,70 +712,69 @@ class Juego:
             hora = 0
             if minuto > 60:
                 hour, minuto = (minuto // 60, minuto % 60)
-            ss = segundo
-            mm = minuto
-            hh = hora
-            self.horas_reloj.config(text= hh)
-            self.minutos_reloj.config(text= mm)
-            self.segundos_reloj.config(text= ss)
-            contar_timer = self.horas_reloj.after(1000, lambda: self.timer("start", hh, mm, ss))
+            self.ss = segundo
+            self.mm = minuto
+            self.hh = hora
+            self.horas_reloj.config(text= str(self.hh))
+            self.minutos_reloj.config(text= str(self.mm))
+            self.segundos_reloj.config(text= str(self.ss))
+            contar_timer = self.horas_reloj.after(1000, lambda: self.timer("start", self.hh, self.mm, self.ss))
             ventana_jugar.update()
 
             if tiempo == 0:
                 self.horas_reloj.after_cancel(contar_timer)
                 alerta = messagebox.askyesno(title= "", message= "TIEMPO EXPIRADO. ¿DESEA CONTINUAR EL MISMO JUEGO (SI O NO)?")
                 if alerta:
-                    hh = configuracion_juego.lista_timer[0]
-                    mm = configuracion_juego.lista_timer[1]
-                    ss = configuracion_juego.lista_timer[2]
+                    self.hh = configuracion_juego.lista_timer[0]
+                    self.mm = configuracion_juego.lista_timer[1]
+                    self.ss = configuracion_juego.lista_timer[2]
                     self.reloj("start")
                 else:
                     self.terminar_juego_funcion(0)
         elif start_stop == "stop":
-            ss = 0
-            mm = 0
-            hh = 0
+            self.ss = 0
+            self.mm = 0
+            self.hh = 0
             self.horas_reloj.after_cancel(contar_timer)
-            self.horas_reloj.config(text=hh)
-            self.minutos_reloj.config(text=mm)
-            self.segundos_reloj.config(text=ss)
+            self.horas_reloj.config(text= str(self.hh))
+            self.minutos_reloj.config(text=str(self.mm))
+            self.segundos_reloj.config(text=str(self.ss))
         else:
             self.horas_reloj.after_cancel(contar_timer)
-            self.horas_reloj.config(text=hh)
-            self.minutos_reloj.config(text=mm)
-            self.segundos_reloj.config(text=ss)
-
+            self.horas_reloj.config(text=str(self.hh))
+            self.minutos_reloj.config(text=str(self.mm))
+            self.segundos_reloj.config(text=str(self.ss))
 
     #Metodo para el reloj
     def reloj(self, start_stop):
-        global ss, mm, hh, contar_reloj
+        global contar_reloj
         if start_stop == "start":
-            ss += 1
-            if ss == 59:
-                ss = 0
-                mm += 1
-                if mm == 59:
-                    mm = 0
-                    hh += 1
-            self.horas_reloj.config(text=hh)
-            self.minutos_reloj.config(text=mm)
-            self.segundos_reloj.config(text=ss)
+            self.ss += 1
+            if self.ss == 59:
+                self.ss = 0
+                self.mm += 1
+                if self.mm == 59:
+                    self.mm = 0
+                    self.hh += 1
+            self.horas_reloj.config(text=str(self.hh))
+            self.minutos_reloj.config(text=str(self.mm))
+            self.segundos_reloj.config(text=str(self.ss))
 
             ventana_jugar.update()
             contar_reloj = self.horas_reloj.after(1000, lambda: self.reloj("start"))
         elif start_stop == "stop":
-            hh = 0
-            mm = 0
-            ss = 0
+            self.hh = 0
+            self.mm = 0
+            self.ss = 0
             self.horas_reloj.after_cancel(contar_reloj)
-            self.horas_reloj.config(text=hh)
-            self.minutos_reloj.config(text=mm)
-            self.segundos_reloj.config(text=ss)
+            self.horas_reloj.config(text=str(self.hh))
+            self.minutos_reloj.config(text=str(self.mm))
+            self.segundos_reloj.config(text=str(self.ss))
         else:
             self.horas_reloj.after_cancel(contar_reloj)
-            self.horas_reloj.config(text=hh)
-            self.minutos_reloj.config(text=mm)
-            self.segundos_reloj.config(text=ss)
+            self.horas_reloj.config(text=str(self.hh))
+            self.minutos_reloj.config(text=str(self.mm))
+            self.segundos_reloj.config(text=str(self.ss))
 
     #Metodo para borrar jugadas
     def borrar_jugada_funcion(self):
@@ -811,10 +812,11 @@ class Juego:
             alerta = messagebox.askyesno(title= "", message= "¿ESTÁ SEGURO DE TERMINAR EL JUEGO (SI o NO)?")
         else:
             alerta = True
-        if alerta == True:
+        if alerta:
             self.lista_botones_casilla = [[(0, 0), (0, 1), (0, 2), (0, 3), (0, 4)], [(0, 0), (0, 1), (0, 2), (0, 3), (0, 4)],
                                      [(0, 0), (0, 1), (0, 2), (0, 3), (0, 4)], [(0, 0), (0, 1), (0, 2), (0, 3), (0, 4)],
                                      [(0, 0), (0, 1), (0, 2), (0, 3), (0, 4)]]
+
             for i in self.lista_posicion_boton:
                 i[0].config(text= "")
 
@@ -902,7 +904,6 @@ class Juego:
 
             lista_boton_numero_casilla = []
 
-
     #Metodo para borrar el juego
     def borrar_juego_funcion(self):
         global lista_boton_numero_casilla
@@ -940,7 +941,31 @@ class Juego:
 
             lista_boton_numero_casilla = []
 
+    def top_10_funcion(self):
+        try:
+            self.reloj("pause")
+        except:
+            pass
+        try:
+            self.timer("pause", self.hh, self.mm, self.ss)
+        except:
+            pass
+        ventana_top_10 = Toplevel(ventana_jugar)
+        ventana_top_10.geometry("300x500")
 
+        Label(ventana_top_10, text= "TOP 10", font= ("Arial", "16")).pack(anchor= W)
+
+        archivo = open("futoshiki2021top10", "rb")
+        lista = pickle.load(archivo)
+        lista_facil = lista[0]
+        lista_intermedio = lista[1]
+        lista_dificil = lista[2]
+        Label(ventana_top_10, text= "NIVEL FACIL:        JUGADOR        TIEMPO").pack(anchor= W)
+
+        for i in lista_facil:
+            Label(ventana_top_10, text= "                    " + str(i[0]) + "        " + str(i[1])).pack(anchor= W)
+
+        ventana_top_10.mainloop()
     #Metodo para guardar partida
     def guardar_partida_funcion(self):
         #Variables necesarias guardar para el juego
@@ -965,9 +990,8 @@ class Juego:
 
         pila_jugadas = self.pila_jugadas
 
-
         lista_con_variables_juego = [lista_texto_boton, lista_estado_boton, lista_texto_restricciones, lista_botones_casilla, nombre, texto_en_horas, texto_en_minutos, texto_en_segundos,
-                          hh, mm, ss, pila_jugadas, lista_boton_numero_casilla]
+                          self.hh, self.mm, self.ss, pila_jugadas, lista_boton_numero_casilla]
 
         #Variables necesarias para la configuracion
         posicion = configuracion_juego.posicion
@@ -986,7 +1010,7 @@ class Juego:
 
     #Metodo para cargar partida
     def cargar_partida_funcion(self):
-        global hh, mm, ss, lista_boton_numero_casilla
+        global lista_boton_numero_casilla
         archivo = open("futoshiki2021juegoactual.dat", "rb")
         lista_con_todo = pickle.load(archivo)
         lista_con_variables_juego = lista_con_todo[0]
@@ -1023,9 +1047,9 @@ class Juego:
         self.minutos_reloj.config(text= texto_en_minutos)
         self.segundos_reloj.config(text= texto_en_segundos)
 
-        hh = lista_con_variables_juego[8]
-        mm = lista_con_variables_juego[9]
-        ss = lista_con_variables_juego[10]
+        self.hh = lista_con_variables_juego[8]
+        self.mm = lista_con_variables_juego[9]
+        self.ss = lista_con_variables_juego[10]
 
         pila_jugadas = lista_con_variables_juego[11]
         self.pila_jugadas = pila_jugadas
@@ -1050,43 +1074,11 @@ class Juego:
 
         archivo.close()
 
-
     #Metodo para cada boton con el digito
     def boton_funcion(self, boton_numero):
         global lista_boton_numero_casilla
         lista_boton_numero_casilla = []
         lista_boton_numero_casilla.append(boton_numero)
-        if boton_numero == 1:
-            self.boton_1.config(bg= "green")
-            self.boton_2.config(bg= "light blue")
-            self.boton_3.config(bg= "light blue")
-            self.boton_4.config(bg= "light blue")
-            self.boton_5.config(bg= "light blue")
-        elif boton_numero == 2:
-            self.boton_1.config(bg= "light blue")
-            self.boton_2.config(bg= "green")
-            self.boton_3.config(bg= "light blue")
-            self.boton_4.config(bg= "light blue")
-            self.boton_5.config(bg= "light blue")
-        elif boton_numero == 3:
-            self.boton_1.config(bg= "light blue")
-            self.boton_2.config(bg= "light blue")
-            self.boton_3.config(bg= "green")
-            self.boton_4.config(bg= "light blue")
-            self.boton_5.config(bg= "light blue")
-        elif boton_numero == 4:
-            self.boton_1.config(bg= "light blue")
-            self.boton_2.config(bg= "light blue")
-            self.boton_3.config(bg= "light blue")
-            self.boton_4.config(bg= "green")
-            self.boton_5.config(bg= "light blue")
-        else:
-            self.boton_1.config(bg= "light blue")
-            self.boton_2.config(bg= "light blue")
-            self.boton_3.config(bg= "light blue")
-            self.boton_4.config(bg= "light blue")
-            self.boton_5.config(bg= "green")
-
 
     #Metodo para poner la casilla con el problema en rojo y despues presionar tecla y continuar
     def indicar_restriccion(self, lista_posiciones):
@@ -1231,7 +1223,7 @@ class Juego:
                             restriccion_valida_casilla_arriba = True
                             break
 
-            if restriccion_valida_en_misma_casilla == True and restriccion_valida_casilla_a_la_izquierda == True and restriccion_valida_casilla_arriba == True:
+            if restriccion_valida_en_misma_casilla and restriccion_valida_casilla_a_la_izquierda and restriccion_valida_casilla_arriba:
                 restriccion_no_se_repite = True
                 cont = 0
                 while cont < 5:
@@ -1248,7 +1240,7 @@ class Juego:
                         restriccion_no_se_repite = False
                     cont += 1
 
-                if restriccion_no_se_repite == True:
+                if restriccion_no_se_repite:
                     for i in self.lista_posicion_boton:
                         boton = i[0]
                         fila = i[1]
@@ -1267,13 +1259,14 @@ class Juego:
                 del lista_boton_numero_casilla[1]
 
             tablero_completo = True
+
             for i in self.lista_botones_casilla:
                 for j in i:
                     numero = j[0]
                     if numero == 0:
                         tablero_completo = False
                         break
-                if tablero_completo == False:
+                if tablero_completo is False:
                     break
             if tablero_completo:
                 for i in self.lista_posicion_boton:
@@ -1281,37 +1274,70 @@ class Juego:
                 #TOP 10#################################################################
                 #Proceso para ver si hay que registarlo en top 10
                 #Obtener tiempo que duro
-                formato = "%H:%M:%S"
-                hora = datetime.datetime.strptime((str(hh) + ":" + str(mm) + ":" + str(ss)), formato)
-                archivo_top10 = open("futoshiki2021top10.dat", "rb")
-                listas = pickle.load(archivo_top10)
-                lista_facil = listas[0]
-                lista_intermedio = listas[1]
-                lista_dificil = listas[2]
+                """formato = "%H:%M:%S"
+                hora = datetime.datetime.strptime((str(self.hh) + ":" + str(self.mm) + ":" + str(self.ss)), formato)
+                hora = hora.time()
                 nombre = self.nombre_jugador
+                #Abrir archivo top 10
+                archivo = open("futoshiki2021top10", "rb")
+                lista = pickle.load(archivo)
+
+                #listas
+                lista_facil = lista[0]
+                lista_intermedio = lista[1]
+                lista_dificil = lista[2]
+                #Comparar
                 if configuracion_juego.nivel == "Facil":
-                    lista = listas[0]
-                elif configuracion_juego.nivel == "Intermedio":
-                    lista = listas[1]
-                else:
-                    lista = listas[2]
-                tupla = nombre, hora
-                for n,i in enumerate(lista):
                     try:
-                        tiempo = i[0]
-                        tiempo = datetime.datetime.strptime(tiempo, formato)
-                        if hora > tiempo:
-                            lista.insert(n, tupla)
-                            hora = tiempo
-                            tupla = i
-                        else:
-                            pass
+                        for n, i in enumerate(lista_facil):
+                            nombre_comparar = i[0]
+                            tiempo = i[1]
+                            formato = "%H:%M:%S"
+                            tiempo = datetime.datetime.strptime(tiempo,formato)
+                            if hora > tiempo:
+                                tupla = nombre, hora
+                                lista_facil.insert(n, tupla)
+                                hora = tiempo
+                                nombre = nombre_comparar
                     except:
-                        lista.append(hora)
-                archivo = open("futoshiki2021top10.dat", "wb")
-                lista_nueva = [lista_facil, lista_intermedio, lista_dificil]
-                pickle.dump(lista_nueva, archivo)
-                archivo.close()
+                        tupla = nombre, hora
+                        lista_facil.append(tupla)
+
+                elif configuracion_juego.nivel == "Intermedio":
+                    for n, i in enumerate(lista_intermedio):
+                        try:
+                            nombre_comparar = i[0]
+                            tiempo = i[1]
+                            formato = "%H:%M:%S"
+                            tiempo = datetime.datetime.strptime(tiempo,formato)
+                            if hora > tiempo:
+                                tupla = nombre, hora
+                                lista_intermedio.insert(n, tupla)
+                                hora = tiempo
+                                nombre = nombre_comparar
+                        except:
+                            tupla = nombre, hora
+                            lista_intermedio.append(tupla)
+                else:
+                    for n, i in enumerate(lista_dificil):
+                        try:
+                            nombre_comparar = i[0]
+                            tiempo = i[1]
+                            formato = "%H:%M:%S"
+                            tiempo = datetime.datetime.strptime(tiempo,formato)
+                            if hora > tiempo:
+                                tupla = nombre, hora
+                                lista_dificil.insert(n, tupla)
+                                hora = tiempo
+                                nombre = nombre_comparar
+                        except:
+                            tupla = nombre, hora
+                            lista_dificil.append(tupla)
+                archivo = open("futoshiki2021top10", "wb")
+                listas = [lista_facil, lista_intermedio, lista_dificil]
+                pickle.dump(listas, archivo)
+                archivo.close()"""
+
                 ##################################################################################
 
                 messagebox.showinfo(title= "", message= "¡EXCELENTE! JUEGO TERMINADO CON ÉXITO.")
@@ -1319,43 +1345,23 @@ class Juego:
                 if alerta:
                     self.terminar_juego_funcion(0)
                 else:
-                    if configuracion_juego.reloj == "Si":
+                    try:
                         self.reloj("pause")
-                    elif configuracion_juego.reloj == "Timer":
+                    except:
+                        pass
+                    try:
                         self.timer("pause", 0, 0, 0)
-
+                    except:
+                        pass
         else:
             messagebox.showwarning(title= "", message= "FALTA QUE SELECCIONE UN DÍGITO.")
-
-
-
 
 #----------------------------------------------------------------#
                       #FUNCIONES
 #----------------------------------------------------------------#
 
-
 configuracion_juego = Configuracion()
 juego_obj = Juego()
-
-def menu():
-    global ventana_principal
-    ventana_principal = Tk()
-    ventana_principal.geometry("500x500")
-
-    barra_menu = Menu(ventana_principal)
-    barra_menu.add_command(label= "Configuracion", command= configuracion)
-    barra_menu.add_command(label= "A Jugar", command= juego)
-    barra_menu.add_command(label = "Ayuda")
-    barra_menu.add_command(label= "Acerca de")
-    barra_menu.add_command(label= "Salir", command= lambda: ventana_principal.destroy())
-
-    imagen = PhotoImage(file= "futoshiki-math-switch-hero.png")
-    Label(ventana_principal, image= imagen).pack()
-
-    ventana_principal.config(menu= barra_menu)
-
-    ventana_principal.mainloop()
 
 def configuracion():
     configuracion_juego.ventana(ventana_principal)
@@ -1363,4 +1369,24 @@ def configuracion():
 def juego():
     juego_obj.widgets(ventana_principal, configuracion_juego)
 
-menu()
+#-----------------------------------------------------------------#
+                       #PROGRAMA PRINCIPAL
+#-----------------------------------------------------------------#
+
+ventana_principal = Tk()
+ventana_principal.geometry("400x400")
+ventana_principal.title("Futoshiki")
+
+barra_menu = Menu(ventana_principal)
+barra_menu.add_command(label= "Configuracion", command= configuracion)
+barra_menu.add_command(label= "A Jugar", command= juego)
+barra_menu.add_command(label = "Ayuda")
+barra_menu.add_command(label= "Acerca de", command= lambda: messagebox.showinfo(title= "", message= "Futoshiki\n Creador del juego: Carlos Leiva\n Fecha de creacion: 29/6/2021\n Version: 1.0"))
+barra_menu.add_command(label= "Salir", command= lambda: ventana_principal.destroy())
+
+imagen = PhotoImage(file= "futoshiki-math-switch-hero.png")
+Label(ventana_principal, image= imagen).pack()
+
+ventana_principal.config(menu= barra_menu)
+
+ventana_principal.mainloop()
