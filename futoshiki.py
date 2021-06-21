@@ -1,7 +1,6 @@
 # Programa 3
 # Carlos Eduardo Leiva Medaglia
 
-
 # ----------------------------------------------------------#
 # MODULOS
 # ----------------------------------------------------------#
@@ -10,6 +9,7 @@ from tkinter import messagebox
 import random
 import pickle
 import datetime
+import pygame
 import os
 # -----------------------------------------------------------#
 # CLASES
@@ -23,27 +23,29 @@ lista_con_juegos_facil = [(
     ("<", 4, 0), ("<", 4, 1)), ((">", 0, 2), (">", 1, 1), ("2", 1, 1),
                                 ("4", 1, 3), (">", 2, 2), ("<", 3, 1), ("4", 4, 0), ("<", 4, 0))]
 
-lista_con_juegos_intermedios = [(("4", 0, 4), ("3", 1, 0), ("v", 1, 0), ("1", 1, 1),
-                                 ("˄", 1, 1), ("5", 1, 3), ("5", 2, 1), ("˄", 2, 2),
-                                 (">", 2, 3), ("5", 3, 2))]
+lista_con_juegos_intermedios = [(("4",0,0),("5",1,3),("5",1,4),(">",2,0),
+                                 ("<",3,2),("˄",3,4),(">",4,0),("3",4,1),
+                                 (">",4,2))]
 
-lista_con_juegos_dificiles = [(("4", 0, 1), (">", 0, 1), ("5", 0, 3), ("4", 1, 0), ("2", 1, 4),
-                               ("v", 1, 4), ("3", 3, 0), ("v", 3, 1), ("4", 3, 4), ("3", 4, 1), ("1", 4, 3))]
+lista_con_juegos_dificiles = [((">", 0,0),("<",0,1),(">",0,3),
+                               (">",2,1),(">",2,2),("v",3,0),("v",3,2),
+                               ("3",4,2),("1",4,4))]
 
 # Clase para la configuracion
 class Configuracion:
+    #Metodo constructor
+    def __init__(self, reloj, lista_timer, nivel, lista_nivel, posicion):
+        self.reloj = reloj
+        self.lista_timer = lista_timer
+        self.nivel = nivel
+        self.lista_nivel = lista_nivel
+        self.posicion = posicion
+
     #Metodo para la creacion de la ventana
     def ventana(self, ventana_principal):
         #Variables globales
         global ventana_configuracion
         global reloj, lista_timer, nivel, lista_nivel, posicion
-
-        #Se asignan los valores predeterminados a las variables
-        reloj = "Si"
-        lista_timer = [0, 0, 0]
-        nivel = "Facil"
-        lista_nivel = lista_con_juegos_facil[random.randint(0, (len(lista_con_juegos_facil) - 1))]
-        posicion = "Derecha"
 
         #Se crean variables qie funcionan para los radiobuttons
         nivel_texto = StringVar()
@@ -139,9 +141,8 @@ class Configuracion:
 
         Label(ventana_configuracion, text="LA CONFIGURACION PREDETERMINADA\n TIENE UN CIRCULO ROJO A SU DERECHA",
               font=("Times New Roman", "14"), fg="dark red").place(x=100, y=400)
-        Label(ventana_configuracion,
-              text="* EN CASO DE ENTRAR A LA\n CONFIGURACION CON UNA\n CONFIGURACION YA GUARDADA\n Y SE VUELVE A GUARDAR\n SIN MARCAR NADA SE GUARDARA\n LA CONFIGURACION PREDETERMINDADA",
-              font=("Times New Roman", "11"), fg="red").place(x=188, y=50)
+
+        Button(ventana_configuracion, text= "SALIR", bg= "red", font=("Arial", "20"), command= ventana_configuracion.destroy).pack(anchor= NE)
 
         ventana_configuracion.mainloop()
 
@@ -203,10 +204,12 @@ class Configuracion:
             messagebox.showwarning(title="", message="ERROR DEBE SER UN NUMERO ENTERO")
             self.Horas.delete(0, END)
 
+    #Metodo que revisa si los minutos estan bien
     def minutos_funcion(self, *args):
         global lista_timer
         minutos_variable = self.Minutos.get()
         try:
+            #Los minutos deben ser un numeor y estar entre 0 y 59
             minutos_variable = int(minutos_variable)
             if 0 <= minutos_variable <= 59:
                 lista_timer[1] = minutos_variable
@@ -216,11 +219,12 @@ class Configuracion:
         except:
             messagebox.showwarning(title="", message="ERROR DEBE SER UN NUMERO ENTERO")
             self.Horas.delete(0, END)
-
+    #Metodo para revisar si los segundos estan bien
     def segundos_funcion(self, *args):
         global lista_timer
         segundos_variable = self.Segundos.get()
         try:
+            #Debe ser un numero y estar etntre 0 y 59
             segundos_variable = int(segundos_variable)
             if 0 <= segundos_variable <= 59:
                 lista_timer[2] = segundos_variable
@@ -230,14 +234,15 @@ class Configuracion:
         except:
             messagebox.showwarning(title="", message="ERROR DEBE SER UN NUMERO ENTERO")
             self.Horas.delete(0, END)
-
+    #Metodo para colocar la posicion de los botones
     def posicion_funcion(self, value):
         global posicion
         posicion = value
-
+    #Metodo para guardar la informacion
     def guardar_info(self):
         self.reloj = reloj
         self.lista_timer = lista_timer
+        #En caso de que el usuario utilice el timer y no haya colocado ningun valor debe dar uno
         if self.reloj == "Timer" and self.lista_timer == [0, 0, 0]:
             messagebox.showwarning(title="", message="DEBE LLENAR AL MENOS UNO DE LOS CAMPOS INDICADOS")
         else:
@@ -251,9 +256,6 @@ class Configuracion:
 # Variables necesarias para la clase
 
 lista_boton_numero_casilla = []
-
-
-# Clase del juego
 
 class Juego:
     #Variables de clase
@@ -278,13 +280,14 @@ class Juego:
             ventana_jugar.geometry("620x600")
 
             # Se agregan distintas etiquetas con informacion para el juego
-            Label(ventana_jugar, text="FUTOSHIKI", font=("Georgia", "20"), bg="dark red", fg="White", width=15,
+            Label(ventana_jugar, text="FUTOSHIKI", font=("Georgia", "20"), bg="purple", fg="White", width=15,
                   height=2).pack()
 
             Label(ventana_jugar, text="NIVEL", font=("Arial", "11")).place(x=240, y=90)
 
             # De el objeto de la clase juego se obtiene el nivel que se configuro y asi se puede mostrar en pantalla
-            Label(ventana_jugar, text=(str(configuracion_juego.nivel)).upper(), font=("Arial", "11")).place(x=285, y=90)
+            self.nivel_texto = Label(ventana_jugar, text=(str(configuracion_juego.nivel)).upper(), font=("Arial", "11"))
+            self.nivel_texto.place(x=285, y=90)
 
             Label(ventana_jugar, text="Nombre del jugador: ", font=("Arial", "12")).place(x=10, y=110)
 
@@ -725,7 +728,7 @@ class Juego:
     # Metodo para iniciar el juegp
     def iniciar_juego_funcion(self):
         #Si el usuario ya dio un nombre
-        if nombre.get() != "":
+        if nombre.get() != "" and len(nombre.get()) <= 20:
             #Se deshabilita para poder volver a escribir un nombre
             nombre.config(state="disabled")
             #En caso de que el juego sea un juego cargado
@@ -771,7 +774,7 @@ class Juego:
                     i[0]["state"] = "normal"
         else:
             #Se le indica al usuario en caso de no haber dado un nombre
-            messagebox.showwarning(title="", message="DEBE INTRODUCIR UN NOMBRE PRIMERO")
+            messagebox.showwarning(title="", message="DEBE INTRODUCIR UN NOMBRE PRIMERO O EL NOMBRE ES MUY LARGO")
 
     # Metodos para el manejo del tiempo
     # Metodo para el timer
@@ -983,10 +986,15 @@ class Juego:
                             j[3]["text"] = restriccion
             #Todos los botones pasan a ser en su estado inicial
             self.boton_1.config(state="disabled", bg="light blue")
+            self.boton_1.deselect()
             self.boton_2.config(state="disabled", bg="light blue")
+            self.boton_2.deselect()
             self.boton_3.config(state="disabled", bg="light blue")
+            self.boton_3.deselect()
             self.boton_4.config(state="disabled", bg="light blue")
+            self.boton_4.deselect()
             self.boton_5.config(state="disabled", bg="light blue")
+            self.boton_5.deselect()
             self.borrar_jugada["state"] = "disabled"
             self.terminar_juego["state"] = "disabled"
             self.borrar_juego["state"] = "disabled"
@@ -1044,10 +1052,15 @@ class Juego:
 
             #Cada boton pasa a ser como en su estado inicial
             self.boton_1.config(state="disabled", bg="light blue")
+            self.boton_1.deselect()
             self.boton_2.config(state="disabled", bg="light blue")
+            self.boton_2.deselect()
             self.boton_3.config(state="disabled", bg="light blue")
+            self.boton_3.deselect()
             self.boton_4.config(state="disabled", bg="light blue")
+            self.boton_4.deselect()
             self.boton_5.config(state="disabled", bg="light blue")
+            self.boton_5.deselect()
             self.borrar_jugada["state"] = "disabled"
             self.terminar_juego["state"] = "disabled"
             self.borrar_juego["state"] = "disabled"
@@ -1188,13 +1201,17 @@ class Juego:
         lista_estado_boton = lista_con_variables_juego[1]
         for n, i in enumerate(self.lista_posicion_boton):
             i[0].config(text=lista_texto_boton[n], state=lista_estado_boton[n])
+
         #Se obtiene las restricciones
         #Y se colocan donde correspondian
         lista_texto_restricciones = lista_con_variables_juego[2]
+        contador = 0
         for i in lista_boton_donde_va_restriccion:
-            for n, j in enumerate(i):
+            for j in i:
                 try:
-                    j[n].config(text=lista_texto_restricciones[n])
+                    j.config(text= "")
+                    j.config(text=lista_texto_restricciones[contador])
+                    contador += 1
                 except:
                     pass
         #Se obtiene una lista que contiene que numero contiene cada casilla
@@ -1240,6 +1257,8 @@ class Juego:
         configuracion_juego.lista_nivel = lista_nivel
         configuracion_juego.reloj = reloj
         configuracion_juego.lista_timer = lista_timer
+
+        self.nivel_texto.config(text= (str(nivel)).upper())
         #La variable de que se cargo el juego pasa a ser verdad
         self.cargo = True
         #Se cierra el archivo
@@ -1473,7 +1492,7 @@ class Juego:
                         break
             #En caso de que este completo
             if tablero_completo:
-                #SE paran los relojes
+                #Se pausan los relojes
                 for i in self.lista_posicion_boton:
                     i[0]["state"] = "disabled"
                 try:
@@ -1496,8 +1515,9 @@ class Juego:
                         hora = tiempo_comparar - hora
                         hora = datetime.datetime.strptime(str(hora), formato)
                         hora = hora.time()
-                    #Se obtiene solo las horas que duro
-                    hora = hora.time()
+                    else:
+                        #Se obtiene solo las horas que duro
+                        hora = hora.time()
                     #Abrir archivo top 10
                     archivo = open("futoshiki2021top10", "rb")
                     lista = pickle.load(archivo)
@@ -1533,11 +1553,16 @@ class Juego:
                     pickle.dump(listas, archivo)
                     archivo.close()
                 ##################################################################################
+                #Desplegar sonido de victoria
+                pygame.mixer.init()
+                pygame.mixer.music.load("Victory sound effect.mp3")
+                pygame.mixer.music.play(loops= 1)
+
                 #Despues se le pregunta al usuario si desea iniciar un nuevo juego
                 messagebox.showinfo(title="", message="¡EXCELENTE! JUEGO TERMINADO CON ÉXITO.")
                 alerta = messagebox.askyesno(title="", message="¿DESEA INICIAR UN NUEVO JUEGO?")
                 if alerta:
-                    #Si desea iniciar un nuevo juego se termin
+                    #Si desea iniciar un nuevo juego se termina en el que estaba.
                     self.terminar_juego_funcion(0)
         else:
             #Si el usuario no marco un digito se le hace saber
@@ -1546,43 +1571,38 @@ class Juego:
 # ----------------------------------------------------------------#
 # FUNCIONES
 # ----------------------------------------------------------------#
-#Se crean los objetos de las clases
-configuracion_juego = Configuracion()
-juego_obj = Juego()
-
-#Funcion configuracion
-def configuracion():
-    #Simplemente lo que hace es que llama al metodo de crear la ventana principal
-    configuracion_juego.ventana(ventana_principal)
-
-#Funcion juego
-def juego():
-    #Simplemente llama al metodo de crear la ventana
-    juego_obj.widgets(ventana_principal, configuracion_juego)
-
+#Funcion para desplegar el manual de ayuda
 def ayuda():
+    """os.open()"""
     pass
-
 
 # -----------------------------------------------------------------#
 # PROGRAMA PRINCIPAL
 # -----------------------------------------------------------------#
+#Se crean los objetos de las clases
+reloj = "Si"
+lista_timer = [0, 0, 0]
+nivel = "Facil"
+lista_nivel = lista_con_juegos_facil[random.randint(0, (len(lista_con_juegos_facil) - 1))]
+posicion = "Derecha"
+
+configuracion_juego = Configuracion(reloj, lista_timer, nivel, lista_nivel, posicion)
+juego_obj = Juego()
+
 
 ventana_principal = Tk()
 ventana_principal.geometry("400x400")
 ventana_principal.title("Futoshiki")
 
 barra_menu = Menu(ventana_principal)
-barra_menu.add_command(label="Configuracion", command=configuracion)
-barra_menu.add_command(label="A Jugar", command=juego)
+barra_menu.add_command(label="Configuracion", command= lambda: configuracion_juego.ventana(ventana_principal))
+barra_menu.add_command(label="A Jugar", command= lambda: juego_obj.widgets(ventana_principal, configuracion_juego))
 barra_menu.add_command(label="Ayuda")
-barra_menu.add_command(label="Acerca de", command=lambda: messagebox.showinfo(title="",
-                                                                              message="Futoshiki\n Creador del juego: Carlos Leiva\n Fecha de creacion: 29/6/2021\n Version: 1.0"))
+barra_menu.add_command(label="Acerca de", command=lambda: messagebox.showinfo(title="",message="Futoshiki\n Creador del juego: Carlos Leiva\n Fecha de creacion: 29/6/2021\n Version: 1.0"))
 barra_menu.add_command(label="Salir", command=lambda: ventana_principal.destroy())
 
-imagen = PhotoImage(file="futoshiki-math-switch-hero.png")
-Label(ventana_principal, image=imagen).pack()
+Label(ventana_principal, text= "FUTOSHIKI", font= ("Arial", "32"), bg= "Red").place(x= 90, y= 150)
 
-ventana_principal.config(menu=barra_menu)
+ventana_principal.config(menu=barra_menu, bg= "Blue")
 
 ventana_principal.mainloop()
