@@ -24,7 +24,7 @@ lista_con_juegos_facil = [(
     ("<", 4, 0), ("<", 4, 1)), ((">", 0, 2), (">", 1, 1), ("2", 1, 1),
                                 ("4", 1, 3), (">", 2, 2), ("<", 3, 1), ("4", 4, 0), ("<", 4, 0))]
 
-lista_con_juegos_intermedios = [(("4", 0, 0), ("5", 1, 3), ("5", 1, 4), (">", 2, 0),
+lista_con_juegos_intermedios = [(("4", 0, 0), ("5", 1, 3), (">", 2, 0),
                                  ("<", 3, 2), ("˄", 3, 4), (">", 4, 0), ("3", 4, 1),
                                  (">", 4, 2))]
 
@@ -1153,13 +1153,12 @@ class Juego:
         #Y vuelve a mostrar la ventana de juego
         if configuracion_juego.reloj == "Timer" and self.iniciar_juego["state"] == "disabled":
             ventana_top_10.protocol("WM_DELETE_WINDOW",
-                                    lambda: [self.timer("start", self.hh, self.mm, self.ss), ventana_top_10.destroy()])
-            ventana_jugar.deiconify()
+                                    lambda: [self.timer("start", self.hh, self.mm, self.ss), ventana_top_10.destroy(), ventana_jugar.deiconify()])
         elif configuracion_juego.reloj == "Si" and self.iniciar_juego["state"] == "disabled":
             ventana_top_10.protocol("WM_DELETE_WINDOW", lambda: [self.reloj("start"), ventana_top_10.destroy()])
             ventana_jugar.deiconify()
         else:
-            ventana_top_10.protocol("WM_DELETE_WINDOW", lambda: [ventana_jugar.deiconify(), ventana_top_10.destroy()])
+            ventana_top_10.protocol("WM_DELETE_WINDOW", lambda: [ventana_jugar.deiconify(), ventana_top_10.destroy(), ventana_jugar.deiconify()])
         ventana_top_10.mainloop()
 
     # Metodo para guardar partida
